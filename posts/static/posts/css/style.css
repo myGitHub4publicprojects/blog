@@ -1,0 +1,12 @@
+.container .jumbotron {
+    padding: 0;
+    background-color: #635c5c;
+}
+
+.jumbotron h1 {
+    font-size: 2em;
+}
+
+.jumbotron p {
+    font-size: 1em;
+}

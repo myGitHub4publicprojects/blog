@@ -1,0 +1,13 @@
+{% extends 'posts/base.html' %}
+{% block title_head %}{{ block.super }}| Homepage{% endblock title_head %}
+
+{% block content %}
+      
+{% for post in post_list %}
+{{ post.title }}<br>
+{{ post.content }}<br>
+{{ post.timestamp }}<br>
+<a href="{% url 'posts:detail' post.id %}">Link to post details</a>
+{% endfor %}
+
+{% endblock content %}

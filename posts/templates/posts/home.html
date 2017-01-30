@@ -1,0 +1,42 @@
+{% extends 'posts/base.html' %}
+{% block title_head %}{{ block.super }}| Homepage{% endblock title_head %}
+
+{% block content %}
+<div class="row">
+    <div class="col-lg-8">
+        {% for post in post_list %}
+        <div class="jumbotron">
+            <div class="container">
+            <h1>{{ post.title }}</h1>
+            <small>By: {{ post.author }} | {{ post.timestamp|date }}</small>
+            {% if post.image %}
+                <img src="{{ post.image.url }}" class="img-responsive"/>
+            {% endif %}
+            <p>{{ post.content|linebreaks|truncatechars:150 }}</p>
+            <p><a class="btn btn-primary" href="{% url 'posts:detail' post.id %}" role="button">Read more &raquo;</a></p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="col-lg-4">
+        {% include 'posts/sidebar.html' %}
+    </div>
+</div>
+
+<div class="pagination">
+    <span class="step-links">
+        {% if post_list.has_previous %}
+            <a href="?page={{ post_list.previous_page_number }}">previous</a>
+        {% endif %}
+
+        <span class="current">
+            Page {{ post_list.number }} of {{ post_list.paginator.num_pages }}.
+        </span>
+
+        {% if post_list.has_next %}
+            <a href="?page={{ post_list.next_page_number }}">next</a>
+        {% endif %}
+    </span>
+</div>
+
+{% endblock content %}
