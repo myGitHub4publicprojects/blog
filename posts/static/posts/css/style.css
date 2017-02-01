@@ -10,3 +10,7 @@
 .jumbotron p {
     font-size: 1em;
 }
+
+.navbar-right {
+    margin-right: 0;
+}

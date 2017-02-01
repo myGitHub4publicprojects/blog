@@ -3,13 +3,30 @@ from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.urlresolvers import reverse
+from django.db.models import Q
+from django.utils import timezone
+
 from .models import Post, upload_location
 from .forms import PostForm
 
 def home(request):
-    queryset_list = Post.objects.all().order_by('-timestamp')
-
-    paginator = Paginator(queryset_list, 5) # Show 25 contacts per page
+    queryset_list = Post.objects.active().order_by('-timestamp')
+    if request.user.is_staff:
+        queryset_list = Post.objects.all().order_by('-timestamp')
+        
+    query = request.GET.get('q')
+    if query:
+        queryset_list = queryset_list.filter(
+            Q(title__icontains=query)|
+            Q(content__icontains=query)|
+            Q(author__username__icontains=query)|
+            Q(title__icontains=query)
+        ).distinct()
+    
+    items_per_page = 5
+    if request.GET.get('iitems'):
+        items_per_page = int(request.GET.get('iitems'))
+    paginator = Paginator(queryset_list, items_per_page) # Show x number of items per page
 
     page = request.GET.get('page')
     try:
@@ -28,7 +45,7 @@ def home(request):
     return render(request, 'posts/home.html', context)
 
 def create(request):
-    if not request.user.is_staff or not request.user.is_superuser:
+    if not request.user.is_staff:
         raise Http404
     form = PostForm(request.POST or None, request.FILES or None)
     if form.is_valid():
@@ -48,6 +65,9 @@ def create(request):
 
 def detail(request, pk):
     post = Post.objects.get(pk=pk)
+    if not request.user.is_staff:
+        if post.draft or post.published > timezone.now().date():
+            raise Http404
     context = {
         'post': post
     }
@@ -69,6 +89,8 @@ def update(request, pk):
     return render(request, 'posts/post_form.html', context)
 
 def delete(request, pk):
+    if not request.user.is_staff:
+        raise Http404
     instance = Post.objects.get(pk=pk)
     instance.delete()
     messages.success(request, 'Post deleted')
