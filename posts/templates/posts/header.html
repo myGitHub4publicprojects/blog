@@ -1,5 +1,10 @@
 {% load static %}
-<nav class="navbar navbar-default navbar-static-top">
+<header>
+    <div id='intro'>
+        <p class="text-center">See my personal projects with Raspberry Pi</p>
+    </div>
+<img id='header_img' src="{% static 'posts/img/header.jpg' %}">
+<nav class="navbar navbar-static-top">
     <div class="container">
     <div class="navbar-header">
         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -8,22 +13,20 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
         </button>
-        <a class="navbar-brand" href="/"><img src="{% static 'posts/img/Blogger-Logo.jpg' %}"></a>
     </div>
     <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
+        <li><a href="/">Home</a></li>
         <li><a href="#about">About</a></li>
         <li><a href="#contact">Contact</a></li>
         <li><a href="#contact">Privacy policy</a></li>
-        
         </ul>
-        <ul class="nav navbar-nav navbar-right">
-            {% if not user.is_authenticated %}
-                 <li><a href="{% url 'admin:login' %}?next={% url 'posts:home' %}">Login</a></li>
-            {% else %}
-                <li><a href="{% url 'admin:logout' %}?next={% url 'posts:home' %}">Logout</a></li>
-            {% endif %}
-        </ul>
+        <form method="GET" action="" class="pull-right">
+            <input type="text" name="q" value="{{ request.GET.q }}"/>
+            <input type="submit" value="Search">
+            </form>
     </div><!--/.nav-collapse -->
     </div>
 </nav>
+
+</header>

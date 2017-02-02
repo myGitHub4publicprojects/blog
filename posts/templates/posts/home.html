@@ -2,22 +2,19 @@
 {% block title_head %}{{ block.super }}| Homepage{% endblock title_head %}
 
 {% block content %}
-<form method="GET" action="" >
-<input type="text" name="q" value="{{ request.GET.q }}"/>
-<input type="submit" placeholder="Search">
-</form>
+
 <div class="row">
     <div class="col-lg-8">
         {% for post in post_list %}
         <div class="jumbotron">
             <div class="container">
-            <h1>
+            <h1 class="text-center">
                 {% if post.draft %}<span><small>draft</small></span>{% endif %}
                 {{ post.title }}
             </h1>
             <small>By: {{ post.author }} | {{ post.published }}</small>
             {% if post.image %}
-                <img src="{{ post.image.url }}" class="img-responsive"/>
+                <img src="{{ post.image.url }}" class="img-responsive img-thumbnail pull-right"/>
             {% endif %}
             <p>{{ post.content|linebreaks|truncatechars:150 }}</p>
             <p><a class="btn btn-primary" href="{% url 'posts:detail' post.id %}" role="button">Read more &raquo;</a></p>
@@ -31,6 +28,7 @@
 </div>
 
 <form id="items_per_page" method="GET" action="">
+    Posts per page:
 <select name="iitems">
     <option value='2'>2</option>
     <option value='4'>4</option>
