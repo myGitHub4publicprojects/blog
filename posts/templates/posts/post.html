@@ -25,6 +25,7 @@
         <img src="{{ post.image.url }}" class="img-responsive pull-right"/>
     {% endif %}
     <p>{{ post.content }}</p>
+    <a href="{% url 'posts:create_pdf' post.id %}">Get article as pdf</a>
     </div>
     <p>
         <div class="fb-like" data-href="https://myblog.com/123" data-layout="standard" data-action="like" data-show-faces="true" data-share="true"></div>

@@ -95,3 +95,114 @@ def delete(request, pk):
     instance.delete()
     messages.success(request, 'Post deleted')
     return redirect('posts:home')
+
+
+def create_pdf(request, pk):
+    from django.http import HttpResponse
+    from reportlab.platypus.doctemplate import SimpleDocTemplate
+    from reportlab.lib import styles
+    from reportlab.lib.styles import getSampleStyleSheet
+    from django.conf import settings
+    import os
+    from reportlab.platypus import (
+        BaseDocTemplate, 
+        PageTemplate, 
+        Frame, 
+        Paragraph,
+        Image
+            )
+    from reportlab.lib.styles import ParagraphStyle
+    from reportlab.lib.enums import TA_LEFT, TA_CENTER
+    from reportlab.lib.colors import (
+        black,
+        purple,
+        white,
+        yellow,
+        blue
+            )
+
+    post = Post.objects.get(pk=pk)
+    # Set up HttpResponse object
+    response = HttpResponse(content_type='application/pdf')
+    filename = post.slug
+    response['Content-Disposition'] = 'attachment; filename= %s.pdf'%filename
+    doc = SimpleDocTemplate(response)
+    styles = getSampleStyleSheet()
+    title = Paragraph(post.title, styles['Title'])
+
+    # use custom styles
+    styles= {
+            'default': ParagraphStyle(
+                'default',
+                fontName='Times-Roman',
+                fontSize=14,
+                leading=12,
+                leftIndent=0,
+                rightIndent=0,
+                firstLineIndent=0,
+                alignment=TA_LEFT,
+                spaceBefore=0,
+                spaceAfter=0,
+                bulletFontName='Times-Roman',
+                bulletFontSize=10,
+                bulletIndent=0,
+                textColor= black,
+                backColor=None,
+                wordWrap=None,
+                borderWidth= 0,
+                borderPadding= 0,
+                borderColor= None,
+                borderRadius= None,
+                allowWidows= 1,
+                allowOrphans= 0,
+                textTransform=None,  # 'uppercase' | 'lowercase' | None
+                endDots=None,         
+                splitLongWords=1,
+            ),
+        }
+    styles['title'] = ParagraphStyle(
+        'title',
+        parent=styles['default'],
+        fontName='Helvetica-Bold',
+        fontSize=24,
+        leading=42,
+        alignment=TA_CENTER,
+        textColor=purple,
+    )
+    styles['alert'] = ParagraphStyle(
+        'alert',
+        parent=styles['default'],
+        leading=14,
+        backColor=blue,
+        borderColor=black,
+        borderWidth=1,
+        borderPadding=5,
+        borderRadius=2,
+        spaceBefore=10,
+        spaceAfter=10,
+    )
+    styles['small'] = ParagraphStyle(
+        'small',
+        parent=styles['default'],
+        leading=14,
+        borderColor=black,
+        borderWidth=0,
+        borderPadding=5,
+        borderRadius=2,
+        spaceBefore=10,
+        spaceAfter=10,
+        textColor=purple,
+        fontSize=10,
+    )
+
+    author = post.author.username
+    published = post.published
+    caption = Paragraph('Published by %s | %s'%(author, published), styles['small'])
+    content = Paragraph(post.content, styles['default'])
+    relative_url = post.get_absolute_url()
+    full_url = request.build_absolute_uri(relative_url)
+    url_paragraph = Paragraph('Article from: ' + full_url, styles['alert'])
+    image = Image(post.image,  width=200, height=200)
+    Elements = [url_paragraph, title, caption, image, content]
+    doc.build(Elements)
+    return response
