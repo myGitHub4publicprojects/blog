@@ -202,7 +202,11 @@ def create_pdf(request, pk):
     relative_url = post.get_absolute_url()
     full_url = request.build_absolute_uri(relative_url)
     url_paragraph = Paragraph('Article from: ' + full_url, styles['alert'])
+    address = '<link href="' + full_url + '">' + 'Click here to read this article online' + '</link>'
+    address_paragraph = Paragraph(address, styles['default'])
     image = Image(post.image,  width=200, height=200)
-    Elements = [url_paragraph, title, caption, image, content]
+    header_image = Image(os.path.join(settings.STATIC_ROOT, 'posts/img/header.jpg'),  width=600, height=100)
+    
+    Elements = [header_image, url_paragraph, title, caption, image, content, address_paragraph]
     doc.build(Elements)
     return response
