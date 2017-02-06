@@ -22,6 +22,10 @@ def home(request):
             Q(author__username__icontains=query)|
             Q(title__icontains=query)
         ).distinct()
+    if len(Post.objects.active()) > 5:
+        recent_posts = Post.objects.active()[:5]
+    else:
+        recent_posts = Post.objects.active()
     
     items_per_page = 5
     if request.GET.get('iitems'):
@@ -41,6 +45,7 @@ def home(request):
 
     context = {
         'post_list': queryset,
+        'recent_posts': recent_posts
     }
     return render(request, 'posts/home.html', context)
 
@@ -194,6 +199,19 @@ def create_pdf(request, pk):
         textColor=purple,
         fontSize=10,
     )
+    styles['link'] = ParagraphStyle(
+        'link',
+        parent=styles['default'],
+        leading=14,
+        borderColor=black,
+        borderWidth=0,
+        borderPadding=5,
+        borderRadius=2,
+        spaceBefore=10,
+        spaceAfter=10,
+        textColor=blue,
+        fontSize=14,
+    )
 
     author = post.author.username
     published = post.published
@@ -203,7 +221,7 @@ def create_pdf(request, pk):
     full_url = request.build_absolute_uri(relative_url)
     url_paragraph = Paragraph('Article from: ' + full_url, styles['alert'])
     address = '<link href="' + full_url + '">' + 'Click here to read this article online' + '</link>'
-    address_paragraph = Paragraph(address, styles['default'])
+    address_paragraph = Paragraph(address, styles['link'])
     image = Image(post.image,  width=200, height=200)
     header_image = Image(os.path.join(settings.STATIC_ROOT, 'posts/img/header.jpg'),  width=600, height=100)
     
