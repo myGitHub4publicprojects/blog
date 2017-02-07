@@ -17,13 +17,12 @@
     <li>category1</li>
 </ul>
 <h1>Archives</h1>
-<ul class="list-unstyled">
-    <li>month1</li>
-    <li>use badge</li>
-    <li>month1</li>
-    <li>month1</li>
-    <li>month1</li>
-    <li>month1</li>
-    <li>month1</li>
-    <li>month1</li>
-</ul>
+{% if archives %}
+    <ul>
+        {% for date, post_no in archives.items %}
+        <li><a href="{% url 'posts:archives' date %}"
+        >{{ date|slice:":3" }} {{ date|slice:"3:" }} ({{ post_no }})</a>
+        </li>
+        {% endfor %}
+    </ul>
+{% endif %}

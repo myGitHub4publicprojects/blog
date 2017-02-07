@@ -9,11 +9,11 @@ from django.utils import timezone
 from .models import Post, upload_location
 from .forms import PostForm
 
-def home(request):
+def home(request, pk=None):
     queryset_list = Post.objects.active().order_by('-timestamp')
     if request.user.is_staff:
         queryset_list = Post.objects.all().order_by('-timestamp')
-        
+   
     query = request.GET.get('q')
     if query:
         queryset_list = queryset_list.filter(
@@ -26,6 +26,21 @@ def home(request):
         recent_posts = Post.objects.active()[:5]
     else:
         recent_posts = Post.objects.active()
+
+    # archives links in sidebar
+    archives = {}
+    for x in queryset_list:
+        date = x.published.strftime("%b%Y")
+        archives[date] = archives.get(date,0) + 1
+
+    # archives qs
+    if pk:
+        import calendar
+        month = pk[:3]
+        year = pk[3:]
+        months = dict((v,k) for k,v in enumerate(calendar.month_abbr))
+        month_digit = months[month]
+        queryset_list = Post.objects.active().filter(published__year=year, published__month=month_digit)
     
     items_per_page = 5
     if request.GET.get('iitems'):
@@ -45,6 +60,7 @@ def home(request):
 
     context = {
         'post_list': queryset,
+        'archives': archives,
         'recent_posts': recent_posts
     }
     return render(request, 'posts/home.html', context)
@@ -100,7 +116,6 @@ def delete(request, pk):
     instance.delete()
     messages.success(request, 'Post deleted')
     return redirect('posts:home')
-
 
 def create_pdf(request, pk):
     from django.http import HttpResponse
