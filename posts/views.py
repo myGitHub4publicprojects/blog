@@ -9,12 +9,36 @@ from django.utils import timezone
 from .models import Category, Post, upload_location
 from .forms import PostForm
 
+def sidebar():
+    # recent posts in sidebar
+    if len(Post.objects.active()) > 5:
+        recent_posts = Post.objects.active().order_by('published')[:5]
+    else:
+        recent_posts = Post.objects.active().order_by('published')
+
+    # categories in sidebar
+    categories =  Category.objects.all()
+
+    # archives links in sidebar
+    archives = {}
+    for x in Post.objects.active():
+        date = x.published.strftime("%b%Y")
+        archives[date] = archives.get(date,0) + 1
+
+    sidebar_context = {
+        'archives': archives,
+        'recent_posts': recent_posts,
+        'categories': categories
+        }
+    return sidebar_context
+
 def home(request, pk=None, category=None):
 
-    queryset_list = Post.objects.active().order_by('-timestamp')
+    queryset_list = Post.objects.active().order_by('-published')
     if request.user.is_staff:
-        queryset_list = Post.objects.all().order_by('-timestamp')
-   
+        queryset_list = Post.objects.all().order_by('-published')
+
+    # search
     query = request.GET.get('q')
     if query:
         queryset_list = queryset_list.filter(
@@ -24,25 +48,10 @@ def home(request, pk=None, category=None):
             Q(title__icontains=query)
         ).distinct()
 
-    # recent posts in sidebar
-    if len(Post.objects.active()) > 5:
-        recent_posts = Post.objects.active()[:5]
-    else:
-        recent_posts = Post.objects.active()
-
-    # categories in sidebar
-    categories =  Category.objects.all()
-
     # category qs
     if category:
         category_obj = Category.objects.filter(name=category)
         queryset_list = Post.objects.active().filter(category=category_obj)
-
-    # archives links in sidebar
-    archives = {}
-    for x in Post.objects.active():
-        date = x.published.strftime("%b%Y")
-        archives[date] = archives.get(date,0) + 1
 
     # archives qs
     if pk:
@@ -69,13 +78,9 @@ def home(request, pk=None, category=None):
         # If page is out of range (e.g. 9999), deliver last page of results.
         queryset = paginator.page(paginator.num_pages)
 
+    context = {'post_list': queryset}
+    context.update(sidebar())
 
-    context = {
-        'post_list': queryset,
-        'archives': archives,
-        'recent_posts': recent_posts,
-        'categories': categories
-    }
     return render(request, 'posts/home.html', context)
 
 def create(request):
@@ -95,9 +100,8 @@ def create(request):
         messages.success(request, 'Post Successfully Created')
         return HttpResponseRedirect(instance.get_absolute_url())
 
-    context = {
-        'form': form
-    }
+    context = {'form': form}
+
     return render(request, 'posts/post_form.html', context)
 
 def detail(request, pk):
@@ -105,9 +109,9 @@ def detail(request, pk):
     if not request.user.is_staff:
         if post.draft or post.published > timezone.now().date():
             raise Http404
-    context = {
-        'post': post
-    }
+    context = {'post': post}
+    context.update(sidebar())
+
     return render(request, 'posts/post.html', context)
 
 def update(request, pk):
@@ -120,9 +124,8 @@ def update(request, pk):
         messages.success(request, 'Post Updated')
         return HttpResponseRedirect(reverse('posts:detail', args=(instance.id,)))
 
-    context = {
-        'form': form
-    }
+    context = {'form': form}
+
     return render(request, 'posts/post_form.html', context)
 
 def delete(request, pk):
@@ -258,4 +261,5 @@ def create_pdf(request, pk):
     
     Elements = [header_image, url_paragraph, title, caption, image, content, address_paragraph]
     doc.build(Elements)
+    
     return response

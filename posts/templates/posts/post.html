@@ -21,6 +21,8 @@
     {{ post.title }}
     </h1>
     <p>Published by: {{ post.author }} on <small>{{ post.published }}</small></p>
+    <p><small>Categories: {% for category in post.category.all %}<a
+    href="{% url 'posts:category' category.name %}">{{ category }} </a>{% endfor %}</small></p>
     {% if post.image %}
         <img src="{{ post.image.url }}" class="img-responsive pull-right"/>
     {% endif %}
