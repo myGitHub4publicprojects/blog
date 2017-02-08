@@ -4,4 +4,5 @@ from .models import Post
 class PostForm(forms.ModelForm):
     class Meta:
         model = Post
-        fields = ['title', 'content', 'image', 'draft', 'published']
+        # fields = ['author', 'title', 'content', 'image', 'draft', 'published', 'category']
+        exclude = ['objects', 'updated', 'timestamp', 'slug']

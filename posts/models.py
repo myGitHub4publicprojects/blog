@@ -6,6 +6,20 @@ from django.utils import timezone
 
 from django.utils.text import slugify
 
+class Category(models.Model):
+    name = models.CharField(max_length=120, unique=True)
+    timestamp = models.DateTimeField(auto_now_add=True, auto_now=False)
+    updated = models.DateTimeField(auto_now_add=False, auto_now=True)
+    slug = models.SlugField(unique=True)
+
+    def __str__(self):
+        return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.id: # to prevent changing slug on updates
+            self.slug = slugify(self.name)
+        return super(Category, self).save(*args, **kwargs)
+
 def upload_location(instance, filename):
     return '%s/%s'%(instance.id, filename)
 
@@ -26,6 +40,7 @@ class Post(models.Model):
     updated = models.DateTimeField(auto_now_add=False, auto_now=True)
     published = models.DateField(auto_now=False, auto_now_add=False)
     draft = models.BooleanField(default=False)
+    category = models.ManyToManyField(Category)
     objects = PostManager()
 
     def __str__(self):
@@ -36,7 +51,7 @@ class Post(models.Model):
     
     def save_no_img(self):
         self.image = None
-        super(Post, self).save()
+        return super(Post, self).save()
     
 
 def create_slug(instance, new_slug=None):
@@ -54,7 +69,5 @@ def create_slug(instance, new_slug=None):
 def pre_save_post_receiver(sender, instance, *args, **kwargs):
     if not instance.slug:
         instance.slug = create_slug(instance)
-
-
 
 pre_save.connect(pre_save_post_receiver, sender=Post)

@@ -12,7 +12,13 @@
                 {% if post.draft %}<span><small>draft</small></span>{% endif %}
                 {{ post.title }}
             </h1>
-            <small>By: {{ post.author }} | {{ post.published }}</small>
+            <small>By: {{ post.author }} | {{ post.published }}</small><br>
+
+            <small>
+            Categories: {% for category in post.category.all %}<a 
+            href="{% url 'posts:category' category.name %}">{{ category }}</a> {% endfor %}
+            </small>
+           
             {% if post.image %}
                 <img src="{{ post.image.url }}" class="img-responsive img-thumbnail pull-right"/>
             {% endif %}

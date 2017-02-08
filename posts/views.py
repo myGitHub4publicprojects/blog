@@ -6,10 +6,11 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils import timezone
 
-from .models import Post, upload_location
+from .models import Category, Post, upload_location
 from .forms import PostForm
 
-def home(request, pk=None):
+def home(request, pk=None, category=None):
+
     queryset_list = Post.objects.active().order_by('-timestamp')
     if request.user.is_staff:
         queryset_list = Post.objects.all().order_by('-timestamp')
@@ -22,14 +23,24 @@ def home(request, pk=None):
             Q(author__username__icontains=query)|
             Q(title__icontains=query)
         ).distinct()
+
+    # recent posts in sidebar
     if len(Post.objects.active()) > 5:
         recent_posts = Post.objects.active()[:5]
     else:
         recent_posts = Post.objects.active()
 
+    # categories in sidebar
+    categories =  Category.objects.all()
+
+    # category qs
+    if category:
+        category_obj = Category.objects.filter(name=category)
+        queryset_list = Post.objects.active().filter(category=category_obj)
+
     # archives links in sidebar
     archives = {}
-    for x in queryset_list:
+    for x in Post.objects.active():
         date = x.published.strftime("%b%Y")
         archives[date] = archives.get(date,0) + 1
 
@@ -42,6 +53,7 @@ def home(request, pk=None):
         month_digit = months[month]
         queryset_list = Post.objects.active().filter(published__year=year, published__month=month_digit)
     
+    # pagination
     items_per_page = 5
     if request.GET.get('iitems'):
         items_per_page = int(request.GET.get('iitems'))
@@ -61,7 +73,8 @@ def home(request, pk=None):
     context = {
         'post_list': queryset,
         'archives': archives,
-        'recent_posts': recent_posts
+        'recent_posts': recent_posts,
+        'categories': categories
     }
     return render(request, 'posts/home.html', context)
 
@@ -69,6 +82,8 @@ def create(request):
     if not request.user.is_staff:
         raise Http404
     form = PostForm(request.POST or None, request.FILES or None)
+    print(request.POST.get('title'))
+    print(request.POST.get('category'))
     if form.is_valid():
         instance = form.save(commit=False)
         instance.author = request.user
@@ -76,6 +91,7 @@ def create(request):
         if request.FILES:
             instance.image = request.FILES['image']
         instance.save()
+        form.save_m2m() # for categories (many to many field) to work
         messages.success(request, 'Post Successfully Created')
         return HttpResponseRedirect(instance.get_absolute_url())
 

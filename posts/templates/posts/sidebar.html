@@ -7,15 +7,13 @@
     </ul>
     {% endif %}
 <h1>Categories</h1>
-<ul class="list-unstyled">
-    <li>category1</li>
-    <li>category1</li>
-    <li>category1</li>
-    <li>category1</li>
-    <li>category1</li>
-    <li>category1</li>
-    <li>category1</li>
-</ul>
+    {% if categories %}
+    <ul class="list-unstyled">
+        {% for category in categories %}
+        <li><a href="{% url 'posts:category' category %}">{{ category }}</a></li>
+        {% endfor %}
+    </ul>
+    {% endif %}
 <h1>Archives</h1>
 {% if archives %}
     <ul>
