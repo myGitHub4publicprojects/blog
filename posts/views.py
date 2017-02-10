@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.db.models import Q
 from django.utils import timezone
 
-from .models import Category, Post, upload_location
+from .models import Category, Post
 from .forms import PostForm
 
 def sidebar():
@@ -261,5 +261,5 @@ def create_pdf(request, pk):
     
     Elements = [header_image, url_paragraph, title, caption, image, content, address_paragraph]
     doc.build(Elements)
-    
+
     return response

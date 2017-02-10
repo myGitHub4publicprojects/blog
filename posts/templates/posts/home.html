@@ -1,4 +1,6 @@
 {% extends 'posts/base.html' %}
+{% load markdown_deux_tags %}
+
 {% block title_head %}{{ block.super }}| Homepage{% endblock title_head %}
 
 {% block content %}
@@ -22,7 +24,7 @@
             {% if post.image %}
                 <img src="{{ post.image.url }}" class="img-responsive img-thumbnail pull-right"/>
             {% endif %}
-            <p>{{ post.content|linebreaks|truncatechars:150 }}</p>
+            <p>{{ post.content|markdown|truncatechars:150 }}</p>
             <p><a class="btn btn-primary" href="{% url 'posts:detail' post.id %}" role="button">Read more &raquo;</a></p>
             </div>
         </div>
