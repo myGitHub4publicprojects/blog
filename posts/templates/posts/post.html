@@ -23,6 +23,7 @@
     {{ post.title }}
     </h1>
     <p>Published by: {{ post.author }} on <small>{{ post.published }}</small></p>
+    <p><small>Read time: {{ post.read_time }} minute{{ post.read_time|pluralize }}</small></p>
     <p><small>Categories: {% for category in post.category.all %}<a
     href="{% url 'posts:category' category.name %}">{{ category }} </a>{% endfor %}</small></p>
     {% if post.image %}

@@ -87,8 +87,7 @@ def create(request):
     if not request.user.is_staff:
         raise Http404
     form = PostForm(request.POST or None, request.FILES or None)
-    print(request.POST.get('title'))
-    print(request.POST.get('category'))
+
     if form.is_valid():
         instance = form.save(commit=False)
         instance.author = request.user

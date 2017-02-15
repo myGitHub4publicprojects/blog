@@ -5,6 +5,7 @@ from django.db.models.signals import pre_save
 from django.utils import timezone
 
 from django.utils.text import slugify
+from .utils import read_time
 
 class Category(models.Model):
     name = models.CharField(max_length=120, unique=True)
@@ -41,6 +42,7 @@ class Post(models.Model):
     published = models.DateField(auto_now=False, auto_now_add=False)
     draft = models.BooleanField(default=False)
     category = models.ManyToManyField(Category)
+    read_time = models.IntegerField(default=0)
     objects = PostManager()
 
     def __str__(self):
@@ -69,5 +71,7 @@ def create_slug(instance, new_slug=None):
 def pre_save_post_receiver(sender, instance, *args, **kwargs):
     if not instance.slug:
         instance.slug = create_slug(instance)
+    html_content = instance.content
+    instance.read_time = read_time(html_content)
 
 pre_save.connect(pre_save_post_receiver, sender=Post)
