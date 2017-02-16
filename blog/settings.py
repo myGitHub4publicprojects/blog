@@ -112,7 +112,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Warsaw'
 
 USE_I18N = True
 
@@ -129,6 +129,27 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static_cdn')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media_cdn')
+
+# CELERY STUFF
+BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+# CELERY_TIMEZONE = 'Africa/Nairobi'
+
+CELERY_IMPORTS = (
+    'posts.tasks',
+    # 'some_app.some_module',
+)
+
+# CELERYBEAT_SCHEDULE = {
+#     'run-every-5-seconds': {
+#         'task': 'inkk_task3',
+#         'schedule': timedelta(seconds=5),
+#         'args': (1,)
+#     },
+# }
 
 # for Heroku
 # import dj_database_url

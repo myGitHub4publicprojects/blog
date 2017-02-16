@@ -1,16 +1,15 @@
-from celery import Celery
+from celery.task.schedules import crontab
+from celery.decorators import periodic_task
+from celery.utils.log import get_task_logger
+from .utils import email_report
 
-app = Celery('tasks', broker='pyamqp://guest@localhost//')
+logger = get_task_logger(__name__)
 
-@app.task
-def add():
-    print('aloha')
-    return 'tralalala'
-
-
-from celery.schedules import crontab
-from celery.task import periodic_task
-
-@periodic_task(run_every=crontab(hour=21, minute=50, day_of_week="mon"))
-def every_monday_morning():
-    print("This is run every Monday morning at 7:30")
+@periodic_task(
+    run_every=(crontab(minute='*/2')),
+    name="email_admin",
+    ignore_result=True
+)
+def daily_admin_email():
+    email_report()
+    logger.info("email to admin has been sent")
