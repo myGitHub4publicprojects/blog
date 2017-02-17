@@ -6,7 +6,7 @@ from .daily_admin_email import email_report
 logger = get_task_logger(__name__)
 
 @periodic_task(
-    run_every=(crontab(minute=1, hour=0)),
+    run_every=(crontab(minute=1, hour=8)),
     name="email_admin",
     ignore_result=True
 )
