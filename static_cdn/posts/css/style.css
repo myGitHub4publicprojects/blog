@@ -1,0 +1,55 @@
+#intro {
+    background-color: #a8133b;
+    color: white;
+    font-weight: bold;
+    padding-top: 0.5em;
+    padding-bottom: 0.1em;
+}
+
+#header_img {
+    max-width: 100%;
+    margin: 0.5em 0;
+}
+
+.navbar {
+    background-color: #a8133b;
+}
+
+.navbar a {
+    color: white;
+}
+
+.navbar a:hover {
+    color: #a8133b;
+}
+
+.navbar form {
+    margin-top: 0.3em;
+    margin-right: 2em;
+}
+
+
+.navbar-toggle {
+    background-color: white;
+}
+
+.jumbotron {
+    padding-top: 0;
+    padding-bottom: 1em;
+    border: 2px #a8133b solid;
+}
+.jumbotron h1 {
+    font-size: 2em;
+}
+
+.jumbotron p {
+    font-size: 1em;
+}
+
+.jumbotron img {
+    height: 150px;
+}
+
+#post-content img {
+    max-height: 150px;
+}
