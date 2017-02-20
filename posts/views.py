@@ -83,6 +83,15 @@ def home(request, pk=None, category=None):
 
     return render(request, 'posts/home.html', context)
 
+def about_us(request):
+    context = sidebar()
+    return render(request, 'posts/aboutus.html', context)
+def contact_us(request):
+    context = sidebar()
+    return render(request, 'posts/contact.html', context)
+def privacy(request):
+    context = sidebar()
+    return render(request, 'posts/privacy.html', context)
 def create(request):
     if not request.user.is_staff:
         raise Http404

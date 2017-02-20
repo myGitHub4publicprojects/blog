@@ -1,6 +1,6 @@
 <h1>Recent posts:</h1>
     {% if recent_posts %}
-    <ul>
+    <ul class="list-unstyled">
     {% for post in recent_posts %}
         <li><a href="{% url 'posts:detail' post.pk %}">{{ post.title }}</a></li>
     {% endfor %}
@@ -16,7 +16,7 @@
     {% endif %}
 <h1>Archives</h1>
 {% if archives %}
-    <ul>
+    <ul class="list-unstyled">
         {% for date, post_no in archives.items %}
         <li><a href="{% url 'posts:archives' date %}"
         >{{ date|slice:":3" }} {{ date|slice:"3:" }} ({{ post_no }})</a>

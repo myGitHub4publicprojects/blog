@@ -1,0 +1,25 @@
+{% extends 'posts/base.html' %}
+
+{% block title_head %}{{ block.super }} | Contact Us{% endblock title_head %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-lg-8">
+        <h1>Contact Us</h1>
+        <p>Our address:<br>
+            ATTN: lawrence.com<br>
+            c/o Lawrence Journal-World<br>
+            645 New Hampshire Street<br>
+            Lawrence, KS 66044<br>
+
+            Our email: webmaster@example.com<br>
+
+            Phone<br>
+            Contact the World Company at 785-000-1000</p>
+    </div>
+    <div class="col-lg-4">
+        {% include 'posts/sidebar.html' %}
+    </div>
+</div>
+{% endblock content %}

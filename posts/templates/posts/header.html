@@ -17,9 +17,9 @@
     <div id="navbar" class="navbar-collapse collapse">
         <ul class="nav navbar-nav">
         <li><a href="/">Home</a></li>
-        <li><a href="#about">About</a></li>
-        <li><a href="#contact">Contact</a></li>
-        <li><a href="#contact">Privacy policy</a></li>
+        <li><a href="{% url 'posts:about-us' %}">About</a></li>
+        <li><a href="{% url 'posts:contact-us' %}">Contact</a></li>
+        <li><a href="{% url 'posts:privacy' %}">Privacy policy</a></li>
         </ul>
         <form method="GET" action="" class="pull-right">
             <input type="text" name="q" value="{{ request.GET.q }}"/>

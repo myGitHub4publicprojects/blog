@@ -1,0 +1,24 @@
+{% extends 'posts/base.html' %}
+
+{% block title_head %}{{ block.super }} | About Us{% endblock title_head %}
+
+{% block content %}
+
+<div class="row">
+    <div class="col-lg-8">
+        <h1>About Us</h1>
+        <p>Development of Django is supported by an independent foundation established as a 501(c)(3) non-profit. Like most open-source foundations, the goal of the Django Software Foundation is to promote, support, and advance its open-source project: in our case, the Django Web framework.
+
+        The foundation's goals are to:
+
+        Support development of Django by sponsoring sprints, meetups, gatherings and community events.
+        Promote the use of Django among the world-wide Web development community.
+        Protect the intellectual property and the framework's long-term viability.
+        Advance the state of the art in Web development.
+        </p>
+    </div>
+    <div class="col-lg-4">
+        {% include 'posts/sidebar.html' %}
+    </div>
+</div>
+{% endblock content %}

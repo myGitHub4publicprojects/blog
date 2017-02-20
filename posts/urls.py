@@ -4,6 +4,9 @@ from . import views
 app_name = 'posts'
 urlpatterns = [
     url(r'^$', views.home, name='home'),
+    url(r'^about-us/$', views.about_us, name='about-us'),
+    url(r'^contact-us/$', views.contact_us, name='contact-us'),
+    url(r'^privacy/$', views.privacy, name='privacy'),
     url(r'^(?P<pk>[0-9]+)$', views.detail, name='detail'),
     url(r'^(?P<pk>[0-9]+)/create_pdf/$', views.create_pdf, name='create_pdf'),
     url(r'^create/$', views.create, name='create'),
