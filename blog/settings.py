@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     # third party
     'markdown_deux',
     'pagedown',
+    'storages',
 
     # custom apps
     'posts',
@@ -135,8 +136,15 @@ STATICFILES_DIRS = (
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media_cdn')
+# MEDIAFILES_DIRS = (MEDIA_ROOT)
 
-MEDIAFILES_DIRS = (MEDIA_ROOT)
+AWS_QUERYSTRING_AUTH = False
+AWS_ACCESS_KEY_ID = os.environ['AWS_ACCESS_KEY_ID']
+AWS_SECRET_ACCESS_KEY = os.environ['AWS_SECRET_ACCESS_KEY']
+AWS_STORAGE_BUCKET_NAME = os.environ['S3_BUCKET_NAME']
+MEDIA_URL = 'http://%s.s3.amazonaws.com/your-folder/' % AWS_STORAGE_BUCKET_NAME
+DEFAULT_FILE_STORAGE = "storages.backends.s3boto.S3BotoStorage"
+
 
 # CELERY STUFF
 BROKER_URL = 'redis://localhost:6379'
