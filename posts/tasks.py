@@ -7,7 +7,7 @@ from .publish_scheduled_posts import automatic_publish
 logger = get_task_logger(__name__)
 
 @periodic_task(
-    run_every=(crontab(minute=45, hour=11)),
+    run_every=(crontab(minute=1, hour=0)),
     name="publish_scheduled_posts",
     ignore_result=True
 )
@@ -16,8 +16,7 @@ def publish_posts():
     logger.info("posts were automatically published")
 
 @periodic_task(
-    # run_every=(crontab(minute=35, hour=18)),
-    run_every=(crontab(hour="*", minute="*", day_of_week="*")),
+    run_every=(crontab(minute=1, hour=1)),
     name="email_admin",
     ignore_result=True
 )
