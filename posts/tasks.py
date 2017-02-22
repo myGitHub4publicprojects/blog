@@ -7,7 +7,7 @@ from .publish_scheduled_posts import automatic_publish
 logger = get_task_logger(__name__)
 
 @periodic_task(
-    run_every=(crontab(minute=1, hour=0)),
+    run_every=(crontab(minute=45, hour=11)),
     name="publish_scheduled_posts",
     ignore_result=True
 )
