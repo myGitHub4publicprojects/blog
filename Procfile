@@ -1,2 +1,2 @@
 web: gunicorn blog.wsgi
-worker: python manage.py celery worker -B -l info
+worker: celery -A blog worker -B --loglevel=info

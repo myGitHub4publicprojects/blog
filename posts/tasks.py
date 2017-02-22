@@ -16,7 +16,8 @@ def publish_posts():
     logger.info("posts were automatically published")
 
 @periodic_task(
-    run_every=(crontab(minute=35, hour=18)),
+    # run_every=(crontab(minute=35, hour=18)),
+    run_every=(crontab(hour="*", minute="*", day_of_week="*")),
     name="email_admin",
     ignore_result=True
 )
