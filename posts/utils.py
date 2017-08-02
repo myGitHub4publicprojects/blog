@@ -2,7 +2,6 @@ import math
 import re
 from django.utils.html import strip_tags
 
-
 def words_count(html_content):
     stripped = strip_tags(html_content)
     words = re.findall(r'\w+', stripped)

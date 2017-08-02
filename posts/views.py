@@ -8,32 +8,11 @@ from django.utils import timezone
 
 from .models import Category, Post
 from .forms import PostForm
-
-def sidebar():
-    # recent posts in sidebar
-    if len(Post.objects.active()) > 5:
-        recent_posts = Post.objects.active().order_by('published')[:5]
-    else:
-        recent_posts = Post.objects.active().order_by('published')
-
-    # categories in sidebar
-    categories =  Category.objects.all()
-
-    # archives links in sidebar
-    archives = {}
-    for x in Post.objects.active():
-        date = x.published.strftime("%b%Y")
-        archives[date] = archives.get(date,0) + 1
-
-    sidebar_context = {
-        'archives': archives,
-        'recent_posts': recent_posts,
-        'categories': categories
-        }
-    return sidebar_context
+from .views_functions import sidebar, queryset_filtered
 
 def home(request, pk=None, category=None):
 
+    print(request.GET)
     queryset_list = Post.objects.active().order_by('-published')
     if request.user.is_staff:
         queryset_list = Post.objects.all().order_by('-published')
@@ -41,12 +20,7 @@ def home(request, pk=None, category=None):
     # search
     query = request.GET.get('q')
     if query:
-        queryset_list = queryset_list.filter(
-            Q(title__icontains=query)|
-            Q(content__icontains=query)|
-            Q(author__username__icontains=query)|
-            Q(title__icontains=query)
-        ).distinct()
+        queryset_list = queryset_filtered(queryset_list, query)
 
     # category qs
     if category:
@@ -123,7 +97,7 @@ def detail(request, pk):
     return render(request, 'posts/post.html', context)
 
 def update(request, pk):
-    if not request.user.is_staff or not request.user.is_superuser:
+    if not request.user.is_superuser:
         raise Http404
     instance = Post.objects.get(pk=pk)
     form = PostForm(request.POST or None, request.FILES or None, instance=instance)
@@ -131,7 +105,6 @@ def update(request, pk):
         instance = form.save()
         messages.success(request, 'Post Updated')
         return HttpResponseRedirect(reverse('posts:detail', args=(instance.id,)))
-
     context = {'form': form}
 
     return render(request, 'posts/post_form.html', context)

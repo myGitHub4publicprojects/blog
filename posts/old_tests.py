@@ -98,3 +98,18 @@ class PostDetailTests(TestCase):
         url = reverse('posts:detail', args=(post.id,))
         response = self.client.get(url)
         self.assertContains(response, post.title)
+
+    def test_post_detail_published_in_past_no_draft2(self):
+        """
+        A post with a published in the past should
+        display a post for staff and non-staff users.
+        Testing if post.title is in response
+        """
+        post = Post.objects.create(
+            published=today - datetime.timedelta(days=1),
+            title='some title',
+            content='some content',
+            author=user)
+        url = reverse('posts:detail', args=(post.id,))
+        response = self.client.get(url)
+        self.assertContains(response, post.title)
