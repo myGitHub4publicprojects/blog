@@ -11,6 +11,7 @@ from mixer.backend.django import mixer
 import pytest
 
 from django.contrib.messages import get_messages  
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 pytestmark = pytest.mark.django_db
 
@@ -18,41 +19,7 @@ now = datetime.datetime.now()
 
 from .. import views
 class TestHomeView(TestCase):
-    def test_anonymous(self):
-        post_yesterday = mixer.blend('posts.Post',
-                                    published=now - datetime.timedelta(days=1),)
-        post_tomorrow = mixer.blend('posts.Post',
-                                    published=now + datetime.timedelta(days=1),)
-        post_yesterday_draft = mixer.blend('posts.Post',
-                                            published=now - datetime.timedelta(days=1),
-                                            draft=True,)
-        url = reverse('posts:home')
-        response = self.client.get(url)
-        active_posts = Post.objects.active()
-        assert response.status_code == 200, 'Should be callable by anyone'
-        # anonymous user should only see active posts (active_posts)
-        self.assertEqual(list(response.context['post_list']), list(active_posts))
-        
-    def test_staff(self):
-        post_yesterday = mixer.blend('posts.Post',
-                                    published=now - datetime.timedelta(days=1),)
-        post_tomorrow = mixer.blend('posts.Post',
-                                    published=now + datetime.timedelta(days=1),)
-        post_yesterday_draft = mixer.blend('posts.Post',
-                                            published=now - datetime.timedelta(days=1),
-                                            draft=True,)
-        user = User.objects.create_user(is_staff=True,
-                                        username='adminuser', 
-                                        email='oo@gmail.com',
-                                        password='somepass')
-        # You'll need to log him in before you can send requests through the client
-        logged_in = self.client.login(username='adminuser', password='somepass')
-        url = reverse('posts:home')
-        response = self.client.get(url)
-        # staff user should see all posts
-        self.assertEqual(len(list(response.context['post_list'])), 3)
-
-    def test_search_anonymous(self):
+    def setUp(self):
         post_yesterday = mixer.blend('posts.Post',
                                     content='past content 1',
                                     published=now - datetime.timedelta(days=1),)
@@ -66,22 +33,49 @@ class TestHomeView(TestCase):
                                             content='draft content 1',
                                             published=now - datetime.timedelta(days=1),
                                             draft=True,)
+        admin = User.objects.create_user(is_staff=True,
+                                        username='adminuser', 
+                                        email='oo@gmail.com',
+                                        password='somepass')
+    def test_anonymous(self):
+
+        url = reverse('posts:home')
+        response = self.client.get(url)
+        active_posts = Post.objects.active()
+        assert response.status_code == 200, 'Should be callable by anyone'
+        # anonymous user should only see active posts (active_posts)
+        self.assertEqual(list(response.context['post_list']), list(active_posts))
+        
+    def test_staff(self):
+        # You'll need to log admin in before you can send requests through the client
+        logged_in = self.client.login(username='adminuser', password='somepass')
+        url = reverse('posts:home')
+        response = self.client.get(url)
+        all_posts = Post.objects.all()
+        # staff user should see all posts
+        self.assertEqual(len(list(response.context['post_list'])), len(all_posts))
+
+    def test_search_anonymous(self):
+
         data={'q': 'past'}
         url = reverse('posts:home')
         response = self.client.get(url, data)
         self.assertEqual(len(response.context['post_list']), 1)
     
     def test_calendar_filter_anonymous(self):
-        post_yesterday = mixer.blend('posts.Post',
-                                    published=now - datetime.timedelta(days=1),)
-        post_yesterday2 = mixer.blend('posts.Post',
-                                    published=now - datetime.timedelta(days=1),)
-        post_tomorrow = mixer.blend('posts.Post',
-                                    published=now + datetime.timedelta(days=1),)
-        post_yesterday_draft = mixer.blend('posts.Post',
-                                            published=now - datetime.timedelta(days=1),
-                                            draft=True,)
+        # post_yesterday = mixer.blend('posts.Post',
+        #                             published=now - datetime.timedelta(days=1),)
+        # post_yesterday2 = mixer.blend('posts.Post',
+        #                             published=now - datetime.timedelta(days=1),)
+        # post_tomorrow = mixer.blend('posts.Post',
+        #                             published=now + datetime.timedelta(days=1),)
+        # post_yesterday_draft = mixer.blend('posts.Post',
+        #                                     published=now - datetime.timedelta(days=1),
+        #                                     draft=True,)
         category1 = mixer.blend('posts.Category', name='category1')
+        post_yesterday = Post.objects.get(content='past content 1')
+        post_tomorrow = Post.objects.get(content='future content 1')
+        post_yesterday_draft = Post.objects.get(content='draft content 1')
         post_yesterday.category.add(category1)
         post_tomorrow.category.add(category1)
         post_yesterday_draft.category.add(category1)
@@ -105,10 +99,13 @@ class TestHomeView(TestCase):
         self.assertEqual(len(response.context['post_list']), 1)
 
     def test_pagination_items_per_page_anonymous(self):
-        post_yesterday = mixer.blend('posts.Post',
-                                    published=now - datetime.timedelta(days=1),)
-        post_yesterday2 = mixer.blend('posts.Post',
-                                    published=now - datetime.timedelta(days=1),)
+        # post_yesterday = mixer.blend('posts.Post',
+        #                             published=now - datetime.timedelta(days=1),)
+        # post_yesterday2 = mixer.blend('posts.Post',
+        #                             published=now - datetime.timedelta(days=1),)
+        #
+
+        # two yesterdays posts are already in setUp function
         post_yesterday3 = mixer.blend('posts.Post',
                                     published=now - datetime.timedelta(days=1),)
         data = {'iitems': '2'}
@@ -118,10 +115,15 @@ class TestHomeView(TestCase):
         self.assertEqual(len(response.context['post_list']), 2)
 
     def test_pagination_page_over_9999_anonymous(self):
-        post_yesterday = mixer.blend('posts.Post',
-                                    published=now - datetime.timedelta(days=1),)
-        post_yesterday2 = mixer.blend('posts.Post',
-                                    published=now - datetime.timedelta(days=1),)
+        # post_yesterday = mixer.blend('posts.Post',
+        #                             published=now - datetime.timedelta(days=1),)
+        # post_yesterday2 = mixer.blend('posts.Post',
+        #                             published=now - datetime.timedelta(days=1),)
+
+
+
+
+        # two yesterdays posts are already in setUp function
         post_yesterday3 = mixer.blend('posts.Post',
                                     published=now - datetime.timedelta(days=1),)
         data = {'iitems': '2', 'page': '99999'}
@@ -159,32 +161,49 @@ class TestCreateView(TestCase):
         self.assertEqual(response.status_code, 404)
         
     def test_staff_user_get(self):
-        pass
+        staff_user = User.objects.create_superuser(is_staff=True,
+                                                email='oo@gm.com',
+                                                username='staffuser',
+                                                password='somepass')
+        logged_in = self.client.login(username='staffuser', password='somepass')
+        url = reverse('posts:create')
+        response = self.client.get(url)
+        # staff user should have access to this view
+        self.assertEqual(response.status_code, 200)
 
-    def test_staff_user_post(self):
+    def test_staff_user_post_with_image(self):
         staff_user = User.objects.create_superuser(is_staff=True,
                                                 email='oo@gm.com',
                                                 username='staffuser',
                                                 password='somepass')
         logged_in = self.client.login(username='staffuser', password='somepass')
         category = mixer.blend('posts.Category')
-        # post = mixer.blend('posts.Post', content='old content')
         
         today = datetime.date.today()
-        data={'content': 'new content',
+        image = SimpleUploadedFile(name='foo.gif', 
+                   content=b'GIF87a\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00ccc,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00')        
+        data={'content': 'newly created post',
             'author': staff_user.pk,
             'title': 'some title',
             'published': today,
             'read_time': 1,
-            'category': [category.pk],}
+            'category': [category.pk],
+            'image': image
+            }
+        
         url = reverse('posts:create')
         response = self.client.post(url, data)
 
         self.assertTrue(staff_user.is_superuser)
         self.assertTrue(logged_in)
+        self.assertEqual(response.status_code, 302)
         # read post again from db afer saving changes
-        post = Post.objects.first()
-        self.assertEqual(post.content, 'new content')
+        post = Post.objects.get(content='newly created post')
+        self.assertEqual(post.content, 'newly created post')
+        # get message from context and check that expected text is there
+        all_messages = [msg for msg in get_messages(response.wsgi_request)]
+        self.assertEqual(all_messages[0].tags, "success")
+        self.assertEqual(all_messages[0].message, 'Post Successfully Created')
 
 class TestDetailView(TestCase):
     def test_anonymous_with_past_and_active_post(self):
@@ -244,19 +263,6 @@ class TestDetailView(TestCase):
         self.assertTrue(logged_in) 
         assert response.status_code ==200, 'Should be callable by staff user'
         self.assertContains(response, 'XYZ content')
-
-class TestPostDetail(TestCase):
-    def test_post_detail_published_in_future(self):
-        """
-        A post with a published in the future should
-        return a 404 not found for non-staff users.
-        """
-        post = mixer.blend('posts.Post',
-            published=now + datetime.timedelta(days=1),)
-
-        url = reverse('posts:detail', args=(post.id,))
-        response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
 
 
 class TestDeleteView(TestCase):
@@ -340,3 +346,20 @@ class TestUpdateView(TestCase):
 
         # test redirections:
         assert response.status_code == 302, 'Should redirect to success view'
+
+class TestCreatePDFView(TestCase):
+    def test_anonymous_with_image(self):
+        """Should create PDF file with an image"""
+        image = SimpleUploadedFile(name='foo.gif', 
+                   content=b'GIF87a\x01\x00\x01\x00\x80\x01\x00\x00\x00\x00ccc,\x00\x00\x00\x00\x01\x00\x01\x00\x00\x02\x02D\x01\x00')           
+        post = mixer.blend('posts.Post', image=image)
+        url = reverse('posts:create_pdf', args=(post.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+
+    def test_anonymous_no_image(self):
+        """Should create PDF file without an image"""
+        post = mixer.blend('posts.Post')
+        url = reverse('posts:create_pdf', args=(post.id,))
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)

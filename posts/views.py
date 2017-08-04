@@ -70,7 +70,6 @@ def create(request):
     if not request.user.is_staff:
         raise Http404
     form = PostForm(request.POST or None, request.FILES or None)
-
     if form.is_valid():
         instance = form.save(commit=False)
         instance.author = request.user
@@ -237,10 +236,12 @@ def create_pdf(request, pk):
     url_paragraph = Paragraph('Article from: ' + full_url, styles['alert'])
     address = '<link href="' + full_url + '">' + 'Click here to read this article online' + '</link>'
     address_paragraph = Paragraph(address, styles['link'])
-    image = Image(post.image,  width=200, height=200)
     header_image = Image(os.path.join(settings.STATIC_ROOT, 'posts/img/header.jpg'),  width=600, height=100)
     
-    Elements = [header_image, url_paragraph, title, caption, image, content, address_paragraph]
+    Elements = [header_image, url_paragraph, title, caption, content, address_paragraph]
+    if post.image:
+        image = Image(post.image,  width=200, height=200)
+        Elements.append(image)
     doc.build(Elements)
 
     return response

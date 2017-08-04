@@ -12,9 +12,8 @@ def email_report():
     posts_created_obj = Post.objects.filter(timestamp__contains=yesterday)
     created = ['"' + post.title + '"' for post in posts_created_obj]
     created = ', '.join(created)
-    message = 'Yesterday the following posts were published: %s, and the following posts were created: %s.'%(
-        posts_titles,
-        created)
+    message = ('Yesterday the following posts were published: %s, '% posts_titles)+(
+                        'and the following posts were created: %s.'% created)
 
     send_mail(
         subject,
