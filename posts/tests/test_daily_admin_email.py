@@ -11,10 +11,6 @@ pytestmark = pytest.mark.django_db
 
 
 class TestDailyAdminEmail(TestCase):
-    @pytest.fixture(autouse=True)
-    def email_backend_setup(self, settings):
-        settings.EMAIL_BACKEND = 'django.core.mail.backends.locmem.EmailBackend' 
-
     def test_email_report(self):
         'should send email to admin with proper title and message'
         today = datetime.datetime.now().date()
@@ -30,13 +26,14 @@ class TestDailyAdminEmail(TestCase):
         posts_published_obj = Post.objects.filter(published=yesterday.date())
         posts_titles = ['"' + post.title + '"' for post in posts_published_obj]
         posts_titles = ', '.join(posts_titles)
-        posts_created_obj = Post.objects.filter(timestamp__contains=datetime.date(2017, 8, 3))
+        posts_created_obj = Post.objects.filter(timestamp__contains=yesterday.date())
         created = ['"' + post.title + '"' for post in posts_created_obj]
         created = ', '.join(created)
         email_message = ('Yesterday the following posts were published: %s, '% posts_titles)+(
                         'and the following posts were created: %s.'% created)
         email_report()
         sent_email = mail.outbox[0]
+        assert len(mail.outbox) == 1
         assert sent_email.subject == email_subject
         assert sent_email.body == email_message
 
